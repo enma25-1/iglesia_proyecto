@@ -1,0 +1,17 @@
+{
+  "name": "iglesia-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo de Iglesia: backend y frontend",
+  "workspaces": [
+    "iglesia-backend",
+    "iglesia-frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace iglesia-backend",
+    "dev:frontend": "npm run dev --workspace iglesia",
+    "build:backend": "npm run build --workspace iglesia-backend",
+    "build:frontend": "npm run build --workspace iglesia"
+  },
+  "license": "ISC"
+}

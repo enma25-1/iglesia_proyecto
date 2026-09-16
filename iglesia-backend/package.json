@@ -1,0 +1,39 @@
+{
+  "name": "iglesia-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec babel-node src/index.js",
+    "build": "babel src -d dist && cpx \"src/Roboto/**/*\" dist/Roboto",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.1.0",
+    "cors": "^2.8.5",
+    "date-fns": "^2.30.0",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.1",
+    "mongoose": "^7.4.3",
+    "mongoose-aggregate-paginate-v2": "^1.0.7",
+    "multer": "^2.0.2",
+    "path": "^0.12.7",
+    "pdfmake": "^0.2.10",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.10",
+    "@babel/core": "^7.22.10",
+    "@babel/node": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "cpx": "^1.5.0",
+    "nodemon": "^3.0.1"
+  }
+}

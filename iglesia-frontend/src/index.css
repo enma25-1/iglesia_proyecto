@@ -1,0 +1,37 @@
+body {
+  /* Ancho */
+
+  overflow: auto;
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    display: none;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+.top {
+  font-size: 70px;
+}
+/* styles.css */
+.MuiTooltip-tooltip {
+  color: RED;
+  background-color: grey;
+}
+.swal2-container {
+  z-index: 1301;
+}
