@@ -32,11 +32,11 @@ npm install
 
 ```env
 PORT=4000
-DB_URL=mongodb://admin:admin123@localhost:27017/iglesia?authSource=admin
+DB_URL=mongodb://admin:admin123@mongodb:27017/iglesia?authSource=admin
 SECRET_JWT_SEED=cambia_esta_clave
 ```
 
-> Si ejecutas el backend con Docker Compose, usa el hostname del servicio: `mongodb://admin:admin123@mongodb:27017/iglesia?authSource=admin`.
+> El host es `mongodb`, el nombre del servicio en `docker-compose.yml` (no `localhost`), porque el backend también corre dentro de Docker y se conecta a Mongo por la red interna del compose (Opción A, ver abajo). Solo si corres el backend fuera de Docker (Opción B) el host debe ser `localhost`: `mongodb://admin:admin123@localhost:27017/iglesia?authSource=admin`.
 
 ### Frontend — `iglesia-frontend/.env`
 
