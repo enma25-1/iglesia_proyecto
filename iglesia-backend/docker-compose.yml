@@ -4,12 +4,18 @@ services:
     container_name: mongodb
     restart: always
     ports:
-      - "27017:27018"
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin123
     volumes:
       - ./data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok", "mongodb://admin:admin123@localhost:27017/admin?authSource=admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   backend:
     build: .
@@ -20,4 +26,5 @@ services:
     env_file:
       - .env
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy

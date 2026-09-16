@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
+import bcryptjs from "bcryptjs";
 import { DeptoModel } from "../models/Depto";
 import { DistritoModel } from "../models/Distrito";
 import { MunicipioModel } from "../models/Municipio";
 import { ParroquiaModel } from "../models/Parroquia";
+import { UsuarioModel } from "../models/Usuario";
 import fs from "fs";
 import path from "path";
 
@@ -60,8 +62,31 @@ function normalize(name) {
   });
 }
 
+async function seedAdminUsuario() {
+  const username = "admin";
+  const existing = await UsuarioModel.findOne({ username });
+  if (existing) {
+    console.log("Usuario admin ya existe. Omitiendo.");
+    return;
+  }
+  const salt = bcryptjs.genSaltSync();
+  const password = bcryptjs.hashSync("1234admin", salt);
+  await UsuarioModel.create({
+    name: "Administrador",
+    lastname: "Sistema",
+    tel: "00000000",
+    username,
+    password,
+    rol: "ADMINISTRADOR",
+    estado: true,
+  });
+  console.log("Usuario admin creado (admin / 1234admin)");
+}
+
 export const runSeed = async () => {
   console.log("Iniciando seed de datos...");
+
+  await seedAdminUsuario();
 
   const flag = await mongoose.connection.db
     .collection(SEED_FLAG_COLLECTION)
