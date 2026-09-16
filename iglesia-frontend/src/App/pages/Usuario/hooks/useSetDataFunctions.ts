@@ -74,6 +74,7 @@ export const useSetDataFunctions = ({
 
     if (error.error) {
       toast.error(error.msg);
+      setCargando(false);
       return;
     }
     // setProductosData(docs);
