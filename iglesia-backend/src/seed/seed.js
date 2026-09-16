@@ -5,6 +5,10 @@ import { DistritoModel } from "../models/Distrito";
 import { MunicipioModel } from "../models/Municipio";
 import { ParroquiaModel } from "../models/Parroquia";
 import { UsuarioModel } from "../models/Usuario";
+import { MinistroModel } from "../models/Ministro";
+import { ConfirmacionModel } from "../models/Confirmacion";
+import { PageModel } from "../models/Page";
+import { roles } from "../helpers/usuarioProps";
 import fs from "fs";
 import path from "path";
 
@@ -67,11 +71,11 @@ async function seedAdminUsuario() {
   const existing = await UsuarioModel.findOne({ username });
   if (existing) {
     console.log("Usuario admin ya existe. Omitiendo.");
-    return;
+    return existing;
   }
   const salt = bcryptjs.genSaltSync();
   const password = bcryptjs.hashSync("1234admin", salt);
-  await UsuarioModel.create({
+  const admin = await UsuarioModel.create({
     name: "Administrador",
     lastname: "Sistema",
     tel: "00000000",
@@ -81,18 +85,115 @@ async function seedAdminUsuario() {
     estado: true,
   });
   console.log("Usuario admin creado (admin / 1234admin)");
+  return admin;
+}
+
+async function seedPages(adminUsuario) {
+  const existing = await PageModel.findOne({});
+  if (existing) {
+    console.log("Ya existen pages/menu. Omitiendo.");
+    return;
+  }
+  if (!adminUsuario) {
+    console.log("No hay usuario admin, no se puede crear el menu.");
+    return;
+  }
+
+  const paginas = [
+    { componente: "Page", nombre: "Menus", icono: "MenuBook", orden: 1 },
+    { componente: "Usuario", nombre: "Usuarios", icono: "People", orden: 2 },
+    { componente: "Depto", nombre: "Departamentos", icono: "LocationOn", orden: 3 },
+    { componente: "Parroquia", nombre: "Parroquias", icono: "Church", orden: 4 },
+    { componente: "Ministro", nombre: "Ministros", icono: "Groups", orden: 5 },
+    { componente: "Confirmacion", nombre: "Confirmaciones", icono: "Assignment", orden: 6 },
+  ];
+
+  await PageModel.insertMany(
+    paginas.map((pagina) => ({
+      ...pagina,
+      padre: "",
+      tipo: "ITEM",
+      ver: roles,
+      insert: ["ADMINISTRADOR"],
+      update: ["ADMINISTRADOR"],
+      delete: ["ADMINISTRADOR"],
+      rUsuario: adminUsuario._id,
+    })),
+  );
+  console.log(`Menu creado (${paginas.length} paginas).`);
+}
+
+async function seedConfirmacionDemo() {
+  const existing = await ConfirmacionModel.findOne({});
+  if (existing) {
+    console.log("Ya existe al menos una confirmacion. Omitiendo.");
+    return;
+  }
+
+  const parroquia = await ParroquiaModel.findOne({});
+  if (!parroquia) {
+    console.log(
+      "No hay parroquias registradas, no se puede crear la confirmacion de ejemplo.",
+    );
+    return;
+  }
+
+  let ministro = await MinistroModel.findOne({});
+  if (!ministro) {
+    ministro = await MinistroModel.create({
+      name: "Monseñor de Ejemplo",
+      orden: { name: "Obispo", abreviatura: "Mons." },
+      estado: true,
+      municipio: parroquia.municipio,
+      distrito: parroquia.distrito,
+      depto: parroquia.depto,
+    });
+    console.log("Ministro de ejemplo creado.");
+  }
+
+  await ConfirmacionModel.create({
+    apellidos: "Pérez Gómez",
+    nombres: "Juan Carlos",
+    edad: "15",
+    parroquiaBustismo: {
+      _id: parroquia._id,
+      name: parroquia.name,
+      direccion: parroquia.direccion,
+    },
+    parroquiaConfirmacion: {
+      _id: parroquia._id,
+      name: parroquia.name,
+      direccion: parroquia.direccion,
+    },
+    ministro: {
+      _id: ministro._id,
+      name: ministro.name,
+      orden: ministro.orden,
+    },
+    padre: "Carlos Pérez",
+    madre: "María Gómez",
+    padrino: "José Ramírez",
+    madrina: "Ana López",
+    fecha: new Date(),
+    libro: 1,
+    folio: 1,
+    observacion: "Registro de ejemplo generado por el seed.",
+  });
+  console.log("Confirmacion de ejemplo creada.");
 }
 
 export const runSeed = async () => {
   console.log("Iniciando seed de datos...");
 
-  await seedAdminUsuario();
+  const adminUsuario = await seedAdminUsuario();
+  await seedPages(adminUsuario);
 
   const flag = await mongoose.connection.db
     .collection(SEED_FLAG_COLLECTION)
     .findOne({ _id: SEED_FLAG_ID });
   if (flag) {
     console.log("Seed ya ejecutado anteriormente. Omitiendo.");
+    await seedConfirmacionDemo();
     return;
   }
 
@@ -221,6 +322,8 @@ export const runSeed = async () => {
       console.log(`   ${parroquiaCount} parroquias en base de datos`);
     }
   }
+
+  await seedConfirmacionDemo();
 
   await mongoose.connection.db
     .collection(SEED_FLAG_COLLECTION)
