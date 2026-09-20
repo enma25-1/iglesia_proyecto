@@ -8,6 +8,7 @@ import { UsuarioModel } from "../models/Usuario";
 import { MinistroModel } from "../models/Ministro";
 import { ConfirmacionModel } from "../models/Confirmacion";
 import { PageModel } from "../models/Page";
+import { LogoModel } from "../models/Logo";
 import { roles } from "../helpers/usuarioProps";
 import fs from "fs";
 import path from "path";
@@ -123,6 +124,28 @@ async function seedPages(adminUsuario) {
   console.log(`Menu creado (${paginas.length} paginas).`);
 }
 
+async function seedLogoDefault() {
+  const existing = await LogoModel.findOne({});
+  if (existing) {
+    console.log("Ya existe un logo. Omitiendo.");
+    return;
+  }
+
+  const logoSource = path.join(DATOS_DIR, "logo.jpg");
+  if (!fs.existsSync(logoSource)) {
+    console.log("No se encuentra datos/logo.jpg, no se puede crear el logo por defecto.");
+    return;
+  }
+
+  const uploadsDir = path.resolve(process.cwd(), "uploads");
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  const logoDest = path.join(uploadsDir, "logo.jpg");
+  fs.copyFileSync(logoSource, logoDest);
+
+  await LogoModel.create({ url: "/uploads/logo.jpg" });
+  console.log("Logo por defecto creado.");
+}
+
 async function seedConfirmacionDemo() {
   const existing = await ConfirmacionModel.findOne({});
   if (existing) {
@@ -187,6 +210,7 @@ export const runSeed = async () => {
 
   const adminUsuario = await seedAdminUsuario();
   await seedPages(adminUsuario);
+  await seedLogoDefault();
 
   const flag = await mongoose.connection.db
     .collection(SEED_FLAG_COLLECTION)
