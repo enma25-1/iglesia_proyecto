@@ -131,25 +131,21 @@ async function seedLogoDefault() {
     return;
   }
 
+  // Se sincroniza siempre desde datos/logo.jpg (no solo si falta), asi que
+  // reemplazar la imagen en el repo se refleja tambien en instalaciones que
+  // ya corrieron el seed antes y tienen uploads/ persistido en un volumen.
   const uploadsDir = path.resolve(process.cwd(), "uploads");
   const logoDest = path.join(uploadsDir, "logo.jpg");
-
-  const existing = await LogoModel.findOne({});
-  if (existing && fs.existsSync(logoDest)) {
-    console.log("Ya existe un logo y el archivo esta presente. Omitiendo.");
-    return;
-  }
-
-  // El archivo puede faltar aunque el registro ya exista si el contenedor se
-  // recreo sin volumen persistente para uploads/ (la BD si persiste). Se
-  // restaura el archivo en ese caso en vez de duplicar el registro.
   fs.mkdirSync(uploadsDir, { recursive: true });
   fs.copyFileSync(logoSource, logoDest);
 
+  const existing = await LogoModel.findOne({});
   if (!existing) {
     await LogoModel.create({ url: "/uploads/logo.jpg" });
+    console.log("Logo por defecto creado.");
+    return;
   }
-  console.log("Logo por defecto creado/restaurado.");
+  console.log("Logo por defecto sincronizado desde datos/logo.jpg.");
 }
 
 async function seedConfirmacionDemo() {
