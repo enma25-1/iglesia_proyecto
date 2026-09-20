@@ -316,7 +316,7 @@ export const ModalConfirmacion = () => {
                     value.name + " -- " + value.direccion
                   }
                   isOptionEqualToValue={(option, value) =>
-                    option._id === value._id
+                    option._id === value?._id
                   }
                   onChange={(_, newValue) => {
                     if (!newValue) return;
@@ -369,7 +369,7 @@ export const ModalConfirmacion = () => {
                   value={formValues.ministro}
                   getOptionLabel={(value) => getMinistroDisplayName(value)}
                   isOptionEqualToValue={(option, value) =>
-                    option._id === value._id
+                    option._id === value?._id
                   }
                   onChange={(_, newValue) => {
                     if (!newValue) return;
@@ -411,7 +411,7 @@ export const ModalConfirmacion = () => {
                   value={formValues.ministroConfirma}
                   getOptionLabel={(value) => getMinistroDisplayName(value)}
                   isOptionEqualToValue={(option, value) =>
-                    option._id === value._id
+                    option._id === value?._id
                   }
                   onChange={(_, newValue) => {
                     if (!newValue) return;
@@ -502,7 +502,7 @@ export const ModalConfirmacion = () => {
                   value={formValues.parroquiaBustismo}
                   getOptionLabel={(value) => value.name}
                   isOptionEqualToValue={(option, value) =>
-                    option._id === value._id
+                    option._id === value?._id
                   }
                   onChange={(_, newValue) => {
                     if (!newValue) return;
