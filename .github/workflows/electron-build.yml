@@ -1,0 +1,54 @@
+name: Electron Desktop Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "iglesia-frontend/**"
+      - "package-lock.json"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-electron:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # electron-builder necesita crear symlinks al descargar herramientas de firma;
+      # sin Developer Mode, Windows lo bloquea con "required privilege not held".
+      - name: Habilitar symlinks sin admin (Developer Mode)
+        shell: pwsh
+        run: |
+          New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Force | Out-Null
+          Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -Value 1
+
+      - run: npm run build:frontend
+      - run: npm run build:electron --workspace iglesia
+
+      - name: Publicar/actualizar release con el instalador
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          NOTES="Build automatico generado desde main (${GITHUB_SHA::7})."
+          if gh release view desktop-latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload desktop-latest "iglesia-frontend/dist/"*.exe --repo "$GITHUB_REPOSITORY" --clobber
+            gh release edit desktop-latest --repo "$GITHUB_REPOSITORY" --notes "$NOTES"
+          else
+            gh release create desktop-latest "iglesia-frontend/dist/"*.exe \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Iglesia Desktop (ultimo build)" \
+              --notes "$NOTES" \
+              --prerelease
+          fi
