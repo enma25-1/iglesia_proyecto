@@ -125,27 +125,40 @@ async function seedPages(adminUsuario) {
 }
 
 async function seedLogoDefault() {
-  const logoSource = path.join(DATOS_DIR, "logo.jpg");
+  const LOGO_FILENAME = "logo.png";
+  const logoSource = path.join(DATOS_DIR, LOGO_FILENAME);
   if (!fs.existsSync(logoSource)) {
-    console.log("No se encuentra datos/logo.jpg, no se puede crear el logo por defecto.");
+    console.log(`No se encuentra datos/${LOGO_FILENAME}, no se puede crear el logo por defecto.`);
     return;
   }
 
-  // Se sincroniza siempre desde datos/logo.jpg (no solo si falta), asi que
+  // Se sincroniza siempre desde datos/logo.png (no solo si falta), asi que
   // reemplazar la imagen en el repo se refleja tambien en instalaciones que
   // ya corrieron el seed antes y tienen uploads/ persistido en un volumen.
   const uploadsDir = path.resolve(process.cwd(), "uploads");
-  const logoDest = path.join(uploadsDir, "logo.jpg");
+  const logoDest = path.join(uploadsDir, LOGO_FILENAME);
+  const logoUrl = `/uploads/${LOGO_FILENAME}`;
   fs.mkdirSync(uploadsDir, { recursive: true });
   fs.copyFileSync(logoSource, logoDest);
 
+  // Limpia el logo.jpg de una version anterior del seed, si quedo de un
+  // volumen persistido.
+  const oldJpgPath = path.join(uploadsDir, "logo.jpg");
+  if (fs.existsSync(oldJpgPath)) {
+    fs.unlinkSync(oldJpgPath);
+  }
+
   const existing = await LogoModel.findOne({});
   if (!existing) {
-    await LogoModel.create({ url: "/uploads/logo.jpg" });
+    await LogoModel.create({ url: logoUrl });
     console.log("Logo por defecto creado.");
     return;
   }
-  console.log("Logo por defecto sincronizado desde datos/logo.jpg.");
+  if (existing.url !== logoUrl) {
+    existing.url = logoUrl;
+    await existing.save();
+  }
+  console.log(`Logo por defecto sincronizado desde datos/${LOGO_FILENAME}.`);
 }
 
 async function seedConfirmacionDemo() {
