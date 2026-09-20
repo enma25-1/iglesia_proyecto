@@ -14,6 +14,7 @@
   },
   "build": {
     "electronVersion": "30.5.1",
+    "npmRebuild": false,
     "files": [
       "dist/**/*",
       "src-electron/**/*"
