@@ -96,6 +96,10 @@ Luego corre el frontend en local (ver abajo).
 npm run dev:electron --workspace iglesia
 ```
 
+El instalador de escritorio (`.exe`) se genera y publica automáticamente en cada merge a `main` (workflow `Electron Desktop Build`). Descárgalo siempre actualizado desde:
+
+**[Releases → desktop-latest](https://github.com/enma25-1/iglesia_proyecto/releases/tag/desktop-latest)**
+
 ## Scripts de la raíz
 
 | Script                  | Descripción                                    |

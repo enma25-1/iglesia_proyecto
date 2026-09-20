@@ -3,9 +3,6 @@ name: Electron Desktop Build
 on:
   push:
     branches: [main]
-    paths:
-      - "iglesia-frontend/**"
-      - "package-lock.json"
   workflow_dispatch: {}
 
 permissions:
