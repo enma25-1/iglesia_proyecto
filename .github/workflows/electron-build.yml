@@ -19,13 +19,6 @@ jobs:
           node-version: 20
           cache: npm
 
-      # Windows Defender suele borrar binarios sin firmar (7za.exe, etc.) justo
-      # despues de instalarlos, y electron-builder truena con ENOENT al usarlos.
-      # Se excluye solo esa carpeta puntual del escaneo, no se apaga Defender.
-      - name: Excluir node_modules del escaneo de Defender
-        shell: pwsh
-        run: Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE\node_modules"
-
       - run: npm ci
 
       # electron-builder necesita crear symlinks al descargar herramientas de firma;
