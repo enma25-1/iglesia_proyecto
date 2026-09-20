@@ -8,21 +8,22 @@ import { MinistroModel } from "../models";
 export const reporteRouter = express.Router();
 
 reporteRouter.get("/pdf", async (req, res) => {
+ try {
   // Extraer parámetro ID de la query (?ID=... o ?id=...)
   const id = req.query.ID || req.query.id || null;
   const confirma = await ConfirmacionModel.findOne({ _id: id });
+  if (!confirma) {
+    return res.status(404).json({ error: true, msg: "Confirmacion no encontrada" });
+  }
   const ministro = await MinistroModel.findOne({
     _id: confirma.ministro._id,
   });
-  const ministroConfirma = await MinistroModel.findOne({
-    _id: confirma.ministroConfirma._id,
-  });
-  console.log({ confirma, ministro, ministroConfirma });
+  const ministroConfirma = confirma.ministroConfirma?._id
+    ? await MinistroModel.findOne({ _id: confirma.ministroConfirma._id })
+    : null;
 
   const logo = await LogoModel.find();
-
-  console.log(`DINAMICO: ${logo[0].url}`);
-  console.log("uploads/1770592640253-235863054.jpg");
+  const logoUrl = logo[0]?.url;
 
   // Preparar valores desde la confirmación
 
@@ -86,10 +87,12 @@ reporteRouter.get("/pdf", async (req, res) => {
       // Header con sello/escudo a la izquierda y texto central
       {
         columns: [
-          {
-            image: logo[0].url.replace("/", ""),
-            width: 75,
-          },
+          logoUrl
+            ? {
+                image: logoUrl.replace("/", ""),
+                width: 75,
+              }
+            : { text: "", width: 75 },
           {
             text: "Diócesis de Sonsonate \n El Salvador, C.A.",
             alignment: "center",
@@ -292,6 +295,13 @@ reporteRouter.get("/pdf", async (req, res) => {
   };
 
   let pdfDoc = printer.createPdfKitDocument(docDefinition);
+  res.setHeader("Content-Type", "application/pdf");
   pdfDoc.pipe(res);
   pdfDoc.end();
+ } catch (error) {
+  console.log({ error });
+  if (!res.headersSent) {
+    res.status(500).json({ error: true, msg: "Error al generar el PDF" });
+  }
+ }
 });
