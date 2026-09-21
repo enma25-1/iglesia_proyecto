@@ -72,6 +72,17 @@ export const getConfirmaciones = async (req, res = response) => {
         });
       }
 
+      // Filtro por tipo de confirma (normal / supletoria). Los registros
+      // creados antes de agregar este campo no tienen "tipo" guardado, por
+      // lo que se consideran "normal" también.
+      if (busquedaAvanzada.tipo) {
+        advancedFilters.push(
+          busquedaAvanzada.tipo === "normal"
+            ? { $or: [{ tipo: "normal" }, { tipo: { $exists: false } }] }
+            : { tipo: busquedaAvanzada.tipo },
+        );
+      }
+
       // Combinar búsqueda simple con filtros avanzados
       if (advancedFilters.length > 0) {
         matchConditions.$and = [

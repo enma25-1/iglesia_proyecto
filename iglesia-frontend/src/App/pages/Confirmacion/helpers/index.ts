@@ -136,6 +136,7 @@ export const itemDefault: ConfirmacionItem = {
   folio: 0,
   libro: 0,
   observacion: "",
+  tipo: "normal",
   // crud: Crud,
   // municipio: formatMunicipioForeign(),
   // depto: formatDeptoForeign(),

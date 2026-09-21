@@ -107,6 +107,7 @@ async function seedPages(adminUsuario) {
     { componente: "Parroquia", nombre: "Parroquias", icono: "Church", orden: 4 },
     { componente: "Ministro", nombre: "Ministros", icono: "Groups", orden: 5 },
     { componente: "Confirmacion", nombre: "Confirmaciones", icono: "Assignment", orden: 6 },
+    { componente: "Supletoria", nombre: "Confirmaciones Supletorias", icono: "AssignmentLate", orden: 7 },
   ];
 
   await PageModel.insertMany(
@@ -122,6 +123,36 @@ async function seedPages(adminUsuario) {
     })),
   );
   console.log(`Menu creado (${paginas.length} paginas).`);
+}
+
+// Agrega el menu de "Confirmaciones Supletorias" a instalaciones que ya
+// corrieron el seed antes de que este apartado existiera (seedPages solo
+// siembra el menu completo si no existe ninguna pagina todavia).
+async function seedSupletoriaPage(adminUsuario) {
+  const existing = await PageModel.findOne({ componente: "Supletoria" });
+  if (existing) {
+    console.log("Pagina 'Supletoria' ya existe. Omitiendo.");
+    return;
+  }
+  if (!adminUsuario) {
+    console.log("No hay usuario admin, no se puede crear la pagina 'Supletoria'.");
+    return;
+  }
+
+  await PageModel.create({
+    componente: "Supletoria",
+    nombre: "Confirmaciones Supletorias",
+    icono: "AssignmentLate",
+    padre: "",
+    tipo: "ITEM",
+    orden: 7,
+    ver: roles,
+    insert: ["ADMINISTRADOR"],
+    update: ["ADMINISTRADOR"],
+    delete: ["ADMINISTRADOR"],
+    rUsuario: adminUsuario._id,
+  });
+  console.log("Pagina 'Supletoria' creada.");
 }
 
 async function seedLogoDefault() {
@@ -225,6 +256,7 @@ export const runSeed = async () => {
 
   const adminUsuario = await seedAdminUsuario();
   await seedPages(adminUsuario);
+  await seedSupletoriaPage(adminUsuario);
   await seedLogoDefault();
 
   const flag = await mongoose.connection.db

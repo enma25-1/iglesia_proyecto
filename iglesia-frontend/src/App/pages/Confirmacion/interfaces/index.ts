@@ -12,6 +12,9 @@ export interface ConfirmacionForeign {
   name: string;
   _id: string;
 }
+
+export type TipoConfirmacion = "normal" | "supletoria";
+
 export interface ConfirmacionItem {
   apellidos: string;
   nombres: string;
@@ -30,6 +33,7 @@ export interface ConfirmacionItem {
   libro: number;
   folio: number;
   observacion: string;
+  tipo: TipoConfirmacion;
   _id?: string;
   crud?: Crud;
 }
@@ -46,6 +50,10 @@ export interface BusquedaAvanzadaConfirmacion {
   fecha2: string;
   parroquiaBautismo: string;
   parroquiaConfirmacion: string;
+  // Se agrega desde el componente (no es un filtro editable en el formulario)
+  // para restringir la lista/creación a un tipo de confirma en particular:
+  // "normal" (apartado Confirmaciones) o "supletoria" (apartado Supletorias).
+  tipo?: TipoConfirmacion;
 }
 
 export interface setDataProps {

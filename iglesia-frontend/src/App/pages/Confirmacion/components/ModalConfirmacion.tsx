@@ -226,6 +226,9 @@ export const ModalConfirmacion = () => {
       fecha: formValues.fecha,
       libro: formValues.libro,
       folio: formValues.folio,
+      // Conserva el tipo (normal/supletoria) del apartado desde el que se
+      // está creando, para que agregar varias seguidas no lo reinicie.
+      tipo: formValues.tipo,
     });
   };
   const handleEditar = async () => {
@@ -287,7 +290,9 @@ export const ModalConfirmacion = () => {
             idModal={idModal}
             AccionesLeft={[]}
             // color={isFormInvalid ? "error" : "primary"}
-            texto={editar ? "editando" : "creando"}
+            texto={`${editar ? "editando" : "creando"}${
+              formValues.tipo === "supletoria" ? " (Supletoria)" : ""
+            }`}
             AccionesRight={[
               {
                 color: "error",

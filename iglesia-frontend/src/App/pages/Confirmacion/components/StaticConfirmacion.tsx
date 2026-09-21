@@ -4,7 +4,7 @@ import { useResaltarTexto, useThemeSwal } from "../../../hooks";
 import { usePageStore } from "../../Page";
 import { ConfirmacionActions, ConfirmacionItem } from "..";
 import Swal from "sweetalert2";
-import { Action } from "../../../../interfaces/global";
+import { Action, Components } from "../../../../interfaces/global";
 import { formatearFechaSinHoras, handleSocket } from "../../../../helpers";
 import { Acciones } from "../../../components";
 import { getMinistroDisplayName } from "../../Ministro";
@@ -21,6 +21,9 @@ interface StaticConfirmacionProps extends ConfirmacionActions {
   busqueda: string;
   actionsJoins?: Action[];
   handleEditar: (itemEditing: ConfirmacionItem) => void;
+  // Página desde la que se renderiza esta fila (Confirmacion o Supletoria),
+  // usada para validar el permiso de eliminar contra el menú correcto.
+  pageName?: Components;
 }
 
 export const StaticConfirmacion = ({
@@ -29,6 +32,7 @@ export const StaticConfirmacion = ({
   actionsJoins = [],
   onEliminarConfirmacion,
   handleEditar,
+  pageName = "Confirmacion",
 }: StaticConfirmacionProps) => {
   const themeSwal = useThemeSwal();
   const { noTienePermiso } = usePageStore();
@@ -36,7 +40,7 @@ export const StaticConfirmacion = ({
     handleEditar(confirmacion);
   };
   const handleEliminar = useCallback(() => {
-    if (noTienePermiso("Confirmacion", "delete")) return;
+    if (noTienePermiso(pageName, "delete")) return;
     Swal.fire({
       title: `Desea eliminar la Confirmación`,
       text: confirmacion.nombres,
