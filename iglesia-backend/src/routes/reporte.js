@@ -247,7 +247,7 @@ reporteRouter.get("/pdf", async (req, res) => {
 
       // Espacio para sello
       {
-        text: `Nota: ${observacion}`,
+        text: `Observación: ${observacion}`,
         margin: [60, 0, 60, 40],
       },
       { text: "Sello:", margin: [60, 0, 0, 40] },
