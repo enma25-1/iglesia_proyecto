@@ -60,3 +60,47 @@ jobs:
               --notes "$NOTES" \
               --prerelease
           fi
+
+  build-electron-linux:
+    needs: build-electron
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # El .env del frontend no esta versionado (correcto, es config local),
+      # pero sin el, VITE_API_URL queda undefined al compilar y el AppImage
+      # empaquetado no puede hablar con el backend.
+      - name: Generar .env del frontend para el build
+        shell: bash
+        run: |
+          cat > iglesia-frontend/.env <<'EOF'
+          VITE_API_URL=http://localhost:4000/
+          EOF
+
+      - run: npm run build:frontend
+      - run: npm run build:electron --workspace iglesia
+
+      - name: Publicar/actualizar release con el AppImage
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          NOTES="Build automatico generado desde main (${GITHUB_SHA::7})."
+          if gh release view desktop-latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload desktop-latest "iglesia-frontend/dist/"*.AppImage --repo "$GITHUB_REPOSITORY" --clobber
+            gh release edit desktop-latest --repo "$GITHUB_REPOSITORY" --notes "$NOTES"
+          else
+            gh release create desktop-latest "iglesia-frontend/dist/"*.AppImage \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Iglesia Desktop (ultimo build)" \
+              --notes "$NOTES" \
+              --prerelease
+          fi
