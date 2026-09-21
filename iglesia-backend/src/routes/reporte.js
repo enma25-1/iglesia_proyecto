@@ -50,6 +50,7 @@ reporteRouter.get("/pdf", async (req, res) => {
   const edad = (confirma && confirma.edad) || "[Edad]";
   const padres = (confirma && confirma.padre) || "[Nombres de Padres]";
   const padrinos = (confirma && confirma.padrino) || "[Nombres de Padrinos]";
+  const observacion = (confirma && confirma.observacion) || "";
 
   // Valores adicionales para formato similar a la imagen
   const fullNameUpper = fullName ? fullName.toUpperCase() : "[NOMBRE]";
@@ -245,7 +246,10 @@ reporteRouter.get("/pdf", async (req, res) => {
       },
 
       // Espacio para sello
-      { text: "Nota :", margin: [60, 0, 0, 40] },
+      {
+        text: `Nota: ${observacion}`,
+        margin: [60, 0, 60, 40],
+      },
       { text: "Sello:", margin: [60, 0, 0, 40] },
 
       // Firma centrada
