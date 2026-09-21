@@ -1,7 +1,5 @@
 import {
   TextField,
-  Box,
-  Typography,
   FormControlLabel,
   Checkbox,
   InputAdornment,
@@ -122,7 +120,7 @@ export const LoginPage = () => {
           fullWidth
           type="submit"
         >
-          SING IN
+          INICIAR SESIÓN
         </Button>
         <FormControlLabel
           control={
@@ -135,24 +133,6 @@ export const LoginPage = () => {
           }
           label="Recordar Credenciales"
         />
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="subtitle1" color="secondary.light">
-            Aun no tienes una cuenta?
-          </Typography>
-          {/* <Link to="/auth/register">
-            <Typography
-              variant="subtitle1"
-              color="secondary.light"
-              sx={{
-                ":hover": {
-                  textDecoration: "underline",
-                },
-              }}
-            >
-              Registrarse
-            </Typography>
-          </Link> */}
-        </Box>
       </form>
     </AuthLayout>
   );
