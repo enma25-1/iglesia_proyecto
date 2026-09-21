@@ -40,7 +40,7 @@ export const Appbar = () => {
           {isMdDown ? (
             <IconButton
               size="large"
-              aria-label="account of current usuario"
+              aria-label="cuenta del usuario actual"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={onToogleSidebarMobile}
@@ -50,7 +50,7 @@ export const Appbar = () => {
           ) : (
             <IconButton
               size="large"
-              aria-label="account of current usuario"
+              aria-label="cuenta del usuario actual"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={onToogleSidebar}
@@ -76,7 +76,7 @@ export const Appbar = () => {
                 toggleDarkMode(theme === "dark" ? "light" : "dark")
               }
               color="default"
-              inputProps={{ "aria-label": "toggle theme" }}
+              inputProps={{ "aria-label": "cambiar tema" }}
               icon={<LightMode />}
               checkedIcon={<DarkMode />}
             />
@@ -85,7 +85,7 @@ export const Appbar = () => {
               color={theme === "dark" ? "primary" : "disabled"}
               sx={{ ml: 0.25 }}
             />
-            <Tooltip title="Open settings">
+            <Tooltip title="Abrir menú de usuario">
               <IconButton onClick={handleOpenUsuarioMenu}>
                 <Avatar
                   alt="Foto"
