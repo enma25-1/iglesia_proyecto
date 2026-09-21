@@ -29,6 +29,17 @@ jobs:
           New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Force | Out-Null
           Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -Value 1
 
+      # El .env del frontend no esta versionado (correcto, es config local),
+      # pero sin el, VITE_API_URL queda undefined al compilar y el .exe
+      # empaquetado no puede hablar con el backend (todo login falla con un
+      # mensaje enganoso de "credenciales incorrectas").
+      - name: Generar .env del frontend para el build
+        shell: bash
+        run: |
+          cat > iglesia-frontend/.env <<'EOF'
+          VITE_API_URL=http://localhost:4000/
+          EOF
+
       - run: npm run build:frontend
       - run: npm run build:electron --workspace iglesia
 

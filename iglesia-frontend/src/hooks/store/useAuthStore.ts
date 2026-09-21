@@ -37,7 +37,11 @@ export const useAuthStore = () => {
       localStorage.setItem("token-init-data", new Date().getTime().toString());
       dispatch(onSLogin(rest));
     } catch (error: any) {
-      const msgError = error?.response?.data?.msg || "Credenciales incorrectas";
+      const msgError =
+        error?.response?.data?.msg ||
+        (error?.response
+          ? "Credenciales incorrectas"
+          : "No se pudo conectar con el servidor");
       dispatch(onSLogout(msgError));
       setTimeout(() => {
         dispatch(clearErrorMessage());
