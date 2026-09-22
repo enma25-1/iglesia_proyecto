@@ -1,4 +1,5 @@
 export * from "./Confirmacion";
+export * from "./Supletoria";
 export * from "./store";
 export * from "./interfaces";
 export * from "./helpers";

@@ -8,4 +8,5 @@ export default {
   Ministro: lazy(() => import("../pages/Ministro/Ministro")),
   Seccion: lazy(() => import("../pages/Seccion/Seccion")),
   Confirmacion: lazy(() => import("../pages/Confirmacion/Confirmacion")),
+  Supletoria: lazy(() => import("../pages/Confirmacion/Supletoria")),
 };

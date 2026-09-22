@@ -1,7 +1,11 @@
-import { Action, FromAnotherComponent } from "../../../../interfaces/global";
+import {
+  Action,
+  Components,
+  FromAnotherComponent,
+} from "../../../../interfaces/global";
 import { AddCircle, Cancel, Refresh } from "@mui/icons-material";
 import { useCallback, useEffect, useMemo } from "react";
-import { ConfirmacionItem } from "../interfaces";
+import { ConfirmacionItem, TipoConfirmacion } from "../interfaces";
 import { itemDefault } from "../helpers";
 import { paginationDefault } from "../../../../helpers";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +25,10 @@ interface UseConfirmacionPageProps extends FromAnotherComponent {
   openModal: boolean;
   setItemActive: (item: ConfirmacionItem) => void;
   setOpenModal: (open: boolean) => void;
+  // Permiten reutilizar este hook/página tanto para el apartado de
+  // Confirmaciones normales como para el de Confirmaciones Supletorias.
+  pageName?: Components;
+  tipo?: TipoConfirmacion;
 }
 
 export const useConfirmacionPage = ({
@@ -30,12 +38,14 @@ export const useConfirmacionPage = ({
   openModal,
   setItemActive,
   setOpenModal,
+  pageName = "Confirmacion",
+  tipo = "normal",
 }: UseConfirmacionPageProps) => {
   const navigate = useNavigate();
   const { noTienePermiso, data: dataMenu, getPathPage } = usePageStore();
   const { path } = useMemo(
-    () => getPathPage("Confirmacion", false),
-    [dataMenu],
+    () => getPathPage(pageName, false),
+    [dataMenu, pageName],
   );
 
   const {
@@ -134,9 +144,12 @@ export const useConfirmacionPage = ({
     {
       color: openModal ? "error" : "success",
       Icon: openModal ? Cancel : AddCircle,
-      name: "Agregar Confirmación",
+      name:
+        tipo === "supletoria"
+          ? "Agregar Confirmación Supletoria"
+          : "Agregar Confirmación",
       onClick: () => {
-        setItemActive(itemDefault);
+        setItemActive({ ...itemDefault, tipo });
         setOpenModal(true);
       },
       tipo: "icono",
@@ -145,14 +158,14 @@ export const useConfirmacionPage = ({
 
   const handleEditar = useCallback(
     async (itemEditing: ConfirmacionItem) => {
-      if (noTienePermiso("Confirmacion", "update")) {
+      if (noTienePermiso(pageName, "update")) {
         return;
       }
 
       await setItemActive(itemEditing);
       setOpenModal(true);
     },
-    [noTienePermiso, setItemActive, setOpenModal],
+    [noTienePermiso, setItemActive, setOpenModal, pageName],
   );
 
   const handleDateChange = useCallback(

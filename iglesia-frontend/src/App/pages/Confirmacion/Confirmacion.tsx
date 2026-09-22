@@ -1,5 +1,5 @@
-import { FromAnotherComponent } from "../../../interfaces/global";
-import { useEffect } from "react";
+import { Components, FromAnotherComponent } from "../../../interfaces/global";
+import { useCallback, useEffect } from "react";
 import { PaperContainerPage } from "../../components/style";
 import { columns } from "./helpers";
 import { TableHeader } from "../../components/Tabla/TableHeader";
@@ -16,8 +16,21 @@ import { TableCargando } from "../../components/Tabla/TableCargando";
 import { ModalConfirmacion } from "./components/ModalConfirmacion";
 import { useConfirmacionStore, useConfirmacionPage } from ".";
 import { rowsPerPageOptions } from "../../../helpers";
+import { TipoConfirmacion } from "./interfaces";
 
-export const Confirmacion = ({ dontChangePath }: FromAnotherComponent) => {
+interface ConfirmacionProps extends FromAnotherComponent {
+  // Permiten reutilizar esta misma página tanto para el apartado de
+  // Confirmaciones normales como para el de Confirmaciones Supletorias
+  // (ver Supletoria.tsx), sin duplicar el CRUD completo.
+  tipo?: TipoConfirmacion;
+  pageName?: Components;
+}
+
+export const Confirmacion = ({
+  dontChangePath,
+  tipo = "normal",
+  pageName = "Confirmacion",
+}: ConfirmacionProps) => {
   const {
     data,
     pagination,
@@ -28,6 +41,17 @@ export const Confirmacion = ({ dontChangePath }: FromAnotherComponent) => {
     setOpenModal,
     setItemActive,
   } = useConfirmacionStore();
+
+  // Fuerza el filtro por tipo en cada consulta al backend, sin exponerlo
+  // como un campo editable en el formulario de búsqueda avanzada.
+  const getDataConfirmacionScoped = useCallback(
+    (arg: Parameters<typeof getDataConfirmacion>[0]) =>
+      getDataConfirmacion({
+        ...arg,
+        busquedaAvanzada: { ...arg.busquedaAvanzada, tipo },
+      }),
+    [getDataConfirmacion, tipo],
+  );
 
   const {
     buscando,
@@ -46,11 +70,13 @@ export const Confirmacion = ({ dontChangePath }: FromAnotherComponent) => {
     actions,
   } = useConfirmacionPage({
     dontChangePath,
-    getDataConfirmacion,
+    getDataConfirmacion: getDataConfirmacionScoped,
     pagination,
     openModal,
     setItemActive,
     setOpenModal,
+    pageName,
+    tipo,
   });
 
   // Cleanup effect
@@ -122,7 +148,11 @@ export const Confirmacion = ({ dontChangePath }: FromAnotherComponent) => {
             {data.length === 0 ? (
               <TableNoData
                 length={columns.length}
-                title="No hay Confirmaciones"
+                title={
+                  tipo === "supletoria"
+                    ? "No hay Confirmaciones Supletorias"
+                    : "No hay Confirmaciones"
+                }
               />
             ) : (
               data.map((confirmacion) => (
@@ -132,6 +162,7 @@ export const Confirmacion = ({ dontChangePath }: FromAnotherComponent) => {
                   busqueda={busqueda}
                   onEliminarConfirmacion={onEliminarConfirmacion}
                   handleEditar={handleEditar}
+                  pageName={pageName}
                 />
               ))
             )}

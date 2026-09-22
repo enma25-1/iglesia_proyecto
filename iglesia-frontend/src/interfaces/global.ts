@@ -30,7 +30,8 @@ export type Components =
   | "Parroquia"
   | "Usuario"
   | "Ministro"
-  | "Confirmacion";
+  | "Confirmacion"
+  | "Supletoria";
 
 export type tipoPermiso = "delete" | "update" | "insert"  | "ver";
 

@@ -50,6 +50,8 @@ reporteRouter.get("/pdf", async (req, res) => {
   const edad = (confirma && confirma.edad) || "[Edad]";
   const padres = (confirma && confirma.padre) || "[Nombres de Padres]";
   const padrinos = (confirma && confirma.padrino) || "[Nombres de Padrinos]";
+  const observacion = (confirma && confirma.observacion) || "";
+  const esSupletoria = confirma && confirma.tipo === "supletoria";
 
   // Valores adicionales para formato similar a la imagen
   const fullNameUpper = fullName ? fullName.toUpperCase() : "[NOMBRE]";
@@ -108,20 +110,30 @@ reporteRouter.get("/pdf", async (req, res) => {
         margin: [0, 0, 0, 20],
       },
 
-      // Título principal grande
-      {
-        text: "CERTIFICACIÓN DE CONFIRMA",
-        alignment: "center",
-        fontSize: 18,
-        bold: true,
-        margin: [0, 0, 0, 18],
-      },
+      // Título principal grande (dos líneas cuando es Supletoria)
+      esSupletoria
+        ? {
+            stack: [
+              { text: "SUPLETORIA DE", alignment: "center", fontSize: 18, bold: true },
+              { text: "CERTIFICACIÓN DE CONFIRMA", alignment: "center", fontSize: 18, bold: true },
+            ],
+            margin: [0, 0, 0, 18],
+          }
+        : {
+            text: "CERTIFICACIÓN DE CONFIRMA",
+            alignment: "center",
+            fontSize: 18,
+            bold: true,
+            margin: [0, 0, 0, 18],
+          },
 
       // Texto introductorio (más estrecho)
       {
-        text: `El infrascrito Obispo de la Diócesis de ${ministro?.depto?.name || "Sonsonate"}: ${ministroLabel}, certifica que:`,
+        text: esSupletoria
+          ? `El infrascrito Obispo de la Diócesis de ${ministro?.depto?.name || "Sonsonate"}: ${ministroLabel}, por falta de registros, certifica que se realizó el Sacramento de la Confirmación a:`
+          : `El infrascrito Obispo de la Diócesis de ${ministro?.depto?.name || "Sonsonate"}: ${ministroLabel}, certifica que:`,
         alignment: "justify",
-    
+
         margin: [60, 0, 60, 14],
       },
 
@@ -245,7 +257,10 @@ reporteRouter.get("/pdf", async (req, res) => {
       },
 
       // Espacio para sello
-      { text: "Nota :", margin: [60, 0, 0, 40] },
+      {
+        text: `Observación: ${observacion}`,
+        margin: [60, 0, 60, 40],
+      },
       { text: "Sello:", margin: [60, 0, 0, 40] },
 
       // Firma centrada

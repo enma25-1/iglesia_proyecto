@@ -83,6 +83,11 @@ export const ConfirmacionSchema = new Schema(
     observacion: {
       type: String,
     },
+    tipo: {
+      type: String,
+      enum: ["normal", "supletoria"],
+      default: "normal",
+    },
   },
   {
     timestamps: true,
