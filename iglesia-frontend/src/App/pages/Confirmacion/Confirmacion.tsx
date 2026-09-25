@@ -14,6 +14,7 @@ import {
 import { StaticConfirmacion } from "./components/StaticConfirmacion";
 import { TableCargando } from "../../components/Tabla/TableCargando";
 import { ModalConfirmacion } from "./components/ModalConfirmacion";
+import { ModalImprimirEncabezadoPie } from "./components/ModalImprimirEncabezadoPie";
 import { useConfirmacionStore, useConfirmacionPage } from ".";
 import { rowsPerPageOptions } from "../../../helpers";
 import { TipoConfirmacion } from "./interfaces";
@@ -63,11 +64,12 @@ export const Confirmacion = ({
     sort,
     sortFunction,
     busquedaAvanzada,
-    path,
     handleEditar,
     handleDateChange,
     handleKeyDown,
     actions,
+    openModalEncabezadoPie,
+    setOpenModalEncabezadoPie,
   } = useConfirmacionPage({
     dontChangePath,
     getDataConfirmacion: getDataConfirmacionScoped,
@@ -90,6 +92,11 @@ export const Confirmacion = ({
   return (
     <PaperContainerPage tabIndex={-1} onKeyDown={handleKeyDown}>
       <ModalConfirmacion />
+      <ModalImprimirEncabezadoPie
+        open={openModalEncabezadoPie}
+        onClose={() => setOpenModalEncabezadoPie(false)}
+        tipo={tipo}
+      />
       <Buscador
         label="Buscar"
         buscando={buscando}
@@ -116,7 +123,14 @@ export const Confirmacion = ({
           onChange={(e) => handleDateChange("fecha2", e.target.value)}
         />
       </Box>
-      <TableTitle texto={path} Tabs={[]} />
+      <TableTitle
+        texto={
+          tipo === "supletoria"
+            ? "CONFIRMACIONES SUPLETORIAS"
+            : "CONFIRMACIONES"
+        }
+        Tabs={[]}
+      />
       <Box
         display={"flex"}
         justifyContent={"space-between"}

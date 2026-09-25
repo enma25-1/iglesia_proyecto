@@ -101,7 +101,7 @@ async function seedPages(adminUsuario) {
   }
 
   const paginas = [
-    { componente: "Page", nombre: "Menus", icono: "MenuBook", orden: 1 },
+    { componente: "Page", nombre: "Permisos", icono: "MenuBook", orden: 1 },
     { componente: "Usuario", nombre: "Usuarios", icono: "People", orden: 2 },
     { componente: "Depto", nombre: "Departamentos", icono: "LocationOn", orden: 3 },
     { componente: "Parroquia", nombre: "Parroquias", icono: "Church", orden: 4 },
