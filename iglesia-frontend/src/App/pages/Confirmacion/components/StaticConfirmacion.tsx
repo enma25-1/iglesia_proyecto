@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { StyledTableCell, StyledTableRow } from "../../../components/style";
 import { useResaltarTexto, useThemeSwal } from "../../../hooks";
 import { usePageStore } from "../../Page";
@@ -13,9 +13,30 @@ import {
   DeleteForever,
   Download,
   PictureAsPdf,
+  Visibility,
 } from "@mui/icons-material";
+import {
+  Box,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Tooltip,
+} from "@mui/material";
 import { clienteAxios } from "../../../../api";
 import { saveAs } from "file-saver";
+
+type ModoImpresion = "completo" | "encabezado_pie" | "cuerpo";
+
+// "encabezado_pie" no depende de un confirmado específico (es una hoja en
+// blanco genérica), así que ese modo vive aparte: ver el botón "Imprimir
+// solo encabezado y pie" en el toolbar de la página (ModalImprimirEncabezadoPie).
+const OPCIONES_VER_PDF: { modo: ModoImpresion; label: string }[] = [
+  { modo: "completo", label: "Ver PDF completo" },
+  { modo: "cuerpo", label: "Ver solo cuerpo (hoja ya firmada)" },
+];
 interface StaticConfirmacionProps extends ConfirmacionActions {
   confirmacion: ConfirmacionItem;
   busqueda: string;
@@ -36,8 +57,42 @@ export const StaticConfirmacion = ({
 }: StaticConfirmacionProps) => {
   const themeSwal = useThemeSwal();
   const { noTienePermiso } = usePageStore();
+  const [anchorElImpresion, setAnchorElImpresion] =
+    useState<null | HTMLElement>(null);
   const onClickEditar = () => {
     handleEditar(confirmacion);
+  };
+  const verPdf = (modo: ModoImpresion) => {
+    setAnchorElImpresion(null);
+    try {
+      window.open(
+        `${clienteAxios.defaults.baseURL}/reporte/pdf?ID=${confirmacion._id}&modo=${modo}`,
+        "_blank",
+      );
+    } catch (error: any) {}
+  };
+  const descargarPdf = async () => {
+    setAnchorElImpresion(null);
+    try {
+      const res = await clienteAxios.get(
+        `/reporte/pdf?ID=${confirmacion._id}`,
+        {
+          responseType: "blob",
+        },
+      );
+
+      const pdfBlob = new Blob([res.data], {
+        type: "application/pdf",
+      });
+      saveAs(
+        pdfBlob,
+        `Confirmacion: ${getMinistroDisplayName(confirmacion.ministro)} - ${confirmacion.nombres} ${confirmacion.apellidos}.pdf`,
+      );
+    } catch (error: any) {
+      // const msg =
+      //   error?.response?.data?.msg ||
+      //   "Error al consultar los detalles de ventas";
+    }
   };
   const handleEliminar = useCallback(() => {
     if (noTienePermiso(pageName, "delete")) return;
@@ -66,75 +121,64 @@ export const StaticConfirmacion = ({
       }}
     >
       <StyledTableCell padding="checkbox">
-        <Acciones
-          actions={[
-            {
-              color: "primary",
-              disabled: false,
-              Icon: Create,
-              name: `Editar`,
-              onClick: onClickEditar,
-              tipo: "icono",
-              size: "small",
-            },
+        <Box display="flex" alignItems="center" flexWrap="nowrap">
+          <Acciones
+            actions={[
+              {
+                color: "primary",
+                disabled: false,
+                Icon: Create,
+                name: `Editar`,
+                onClick: onClickEditar,
+                tipo: "icono",
+                size: "small",
+              },
 
-            {
-              color: "warning",
-              Icon: DeleteForever,
-              name: `Eliminar`,
-              onClick: () => {
-                handleEliminar();
+              {
+                color: "warning",
+                Icon: DeleteForever,
+                name: `Eliminar`,
+                onClick: () => {
+                  handleEliminar();
+                },
+                tipo: "icono",
+                size: "small",
               },
-              tipo: "icono",
-              size: "small",
-            },
-            {
-              color: "success",
-              Icon: Download,
-              name: `PDF`,
-              onClick: async () => {
-                try {
-                  const res = await clienteAxios.get(
-                    `/reporte/pdf?ID=${confirmacion._id}`,
-                    {
-                      responseType: "blob",
-                    },
-                  );
-
-                  const pdfBlob = new Blob([res.data], {
-                    type: "application/pdf",
-                  });
-                  saveAs(
-                    pdfBlob,
-                    `Confirmacion: ${confirmacion.ministro} - ${confirmacion.nombres} ${confirmacion.apellidos}.pdf`,
-                  );
-                } catch (error: any) {
-                  // const msg =
-                  //   error?.response?.data?.msg ||
-                  //   "Error al consultar los detalles de ventas";
-                }
-              },
-              tipo: "icono",
-              size: "small",
-            },
-            {
-              color: "error",
-              Icon: PictureAsPdf,
-              name: `Ver PDF`,
-              onClick: async () => {
-                try {
-                  window.open(
-                    `${clienteAxios.defaults.baseURL}/reporte/pdf?ID=${confirmacion._id}`,
-                    "_blank",
-                  );
-                } catch (error: any) {}
-              },
-              tipo: "icono",
-              size: "small",
-            },
-            ...actionsJoins,
-          ]}
-        />
+              ...actionsJoins,
+            ]}
+          />
+          <Tooltip title="PDF" arrow>
+            <IconButton
+              aria-label="PDF"
+              color="error"
+              size="small"
+              onClick={(event) => setAnchorElImpresion(event.currentTarget)}
+            >
+              <PictureAsPdf fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Menu
+            anchorEl={anchorElImpresion}
+            open={Boolean(anchorElImpresion)}
+            onClose={() => setAnchorElImpresion(null)}
+          >
+            {OPCIONES_VER_PDF.map(({ modo, label }) => (
+              <MenuItem key={modo} onClick={() => verPdf(modo)}>
+                <ListItemIcon>
+                  <Visibility fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>{label}</ListItemText>
+              </MenuItem>
+            ))}
+            <Divider />
+            <MenuItem onClick={descargarPdf}>
+              <ListItemIcon>
+                <Download fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Descargar PDF completo</ListItemText>
+            </MenuItem>
+          </Menu>
+        </Box>
       </StyledTableCell>
       <>
         <StyledTableCell>

@@ -3,8 +3,8 @@ import {
   Components,
   FromAnotherComponent,
 } from "../../../../interfaces/global";
-import { AddCircle, Cancel, Refresh } from "@mui/icons-material";
-import { useCallback, useEffect, useMemo } from "react";
+import { AddCircle, Cancel, Description, Refresh } from "@mui/icons-material";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfirmacionItem, TipoConfirmacion } from "../interfaces";
 import { itemDefault } from "../helpers";
 import { paginationDefault } from "../../../../helpers";
@@ -131,6 +131,10 @@ export const useConfirmacionPage = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Hoja en blanco (solo encabezado y pie) para pre-firmar: no depende de
+  // ningún registro de Confirmación, así que su modal se abre aparte.
+  const [openModalEncabezadoPie, setOpenModalEncabezadoPie] = useState(false);
+
   // Actions available in the UI
   const actions: Action[] = [
     {
@@ -152,6 +156,16 @@ export const useConfirmacionPage = ({
         setItemActive({ ...itemDefault, tipo });
         setOpenModal(true);
       },
+      tipo: "icono",
+    },
+    {
+      color: "secondary",
+      Icon: Description,
+      name:
+        tipo === "supletoria"
+          ? "Imprimir solo encabezado y pie (Supletoria)"
+          : "Imprimir solo encabezado y pie",
+      onClick: () => setOpenModalEncabezadoPie(true),
       tipo: "icono",
     },
   ];
@@ -208,5 +222,7 @@ export const useConfirmacionPage = ({
     handleDateChange,
     handleKeyDown,
     actions,
+    openModalEncabezadoPie,
+    setOpenModalEncabezadoPie,
   };
 };
