@@ -141,12 +141,25 @@ npm run <script> --workspace iglesia
 
 ## Backup y restauración de MongoDB
 
-Requiere que el contenedor `mongodb` esté corriendo (`docker compose up -d mongodb` desde `iglesia-backend/`).
+### Cómo hacer un backup
+
+1. Asegúrate de que el contenedor de Mongo esté corriendo:
+   ```bash
+   cd iglesia-backend
+   docker compose up -d mongodb
+   ```
+2. Genera el backup:
+   ```bash
+   npm run db:backup --workspace iglesia-backend
+   ```
+3. Verifica que se creó el archivo en `iglesia-backend/dump/` (nombre tipo `iglesia-<fecha>.archive.gz`).
+4. Guarda ese archivo en un lugar seguro fuera de la PC (USB, disco externo, etc.). No se versiona en git y **no debe enviarse por chat/correo**, ya que contiene datos reales de personas (confirmaciones, usuarios, etc.).
+
+Recomendado: hacer un backup antes de cualquier migración de PC, actualización importante, o de forma periódica como respaldo.
+
+### Cómo restaurar un backup
 
 ```bash
-# Backup: genera iglesia-backend/dump/iglesia-<fecha>.archive.gz
-npm run db:backup --workspace iglesia-backend
-
 # Restaurar el backup más reciente en dump/
 npm run db:restore --workspace iglesia-backend
 
@@ -155,8 +168,6 @@ npm run db:restore --workspace iglesia-backend -- iglesia-2026-01-01T12-00-00-00
 ```
 
 > `db:restore` usa `--drop`: reemplaza las colecciones de destino que también estén en el backup. Pensado para restaurar sobre una instancia nueva/vacía (ej. al migrar de PC), no para fusionar datos con una base ya en uso.
-
-Los archivos de `dump/` no se versionan en git (igual que `data/` y `uploads/`); transfiérelos a mano entre PCs por un medio seguro (USB, etc.), nunca por chat/correo si contienen datos de personas.
 
 ### Verificar un backup sin arriesgar los datos reales
 
