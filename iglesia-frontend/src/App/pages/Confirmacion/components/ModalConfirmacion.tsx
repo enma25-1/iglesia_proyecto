@@ -148,13 +148,6 @@ export const ModalConfirmacion = () => {
     fetchOnMount: true,
   });
 
-  useEffect(() => {
-    setformValues((prev) => ({
-      ...prev,
-      ministro: ministrosData.find((item) => item.estado) ?? prev.ministro,
-    }));
-  }, [ministrosData, openModal]);
-
   //Autocompletes
   //Marca
   // const {
@@ -273,6 +266,18 @@ export const ModalConfirmacion = () => {
     //   },
     // });
   }, [itemActive]);
+
+  // Alta nueva (itemActive sin ministro asignado): precarga el ministro
+  // activo como valor por defecto en el campo "Ministro", sin bloquearlo,
+  // el usuario puede cambiarlo. Al editar un registro existente no se
+  // aplica, ya que itemActive.ministro ya trae el ministro guardado.
+  useEffect(() => {
+    if (itemActive.ministro._id) return;
+    setformValues((prev) => ({
+      ...prev,
+      ministro: ministrosData.find((item) => item.estado) ?? prev.ministro,
+    }));
+  }, [ministrosData, itemActive]);
 
   return (
     <>
