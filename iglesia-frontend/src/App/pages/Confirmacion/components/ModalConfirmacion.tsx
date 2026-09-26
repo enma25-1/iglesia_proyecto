@@ -473,7 +473,7 @@ export const ModalConfirmacion = () => {
                 </Divider>
                 <TextField
                   autoFocus
-                  label={"Nombre"}
+                  label={"Nombres"}
                   {...defaultPropsGenerator("nombres", true, true)}
                 />
                 <TextField
@@ -494,7 +494,7 @@ export const ModalConfirmacion = () => {
                   {...defaultPropsGenerator("madre", true, true)}
                 />
                 <TextField
-                  label={"Padrino"}
+                  label={"Padrinos"}
                   {...defaultPropsGenerator("padrino", true, true)}
                 />
                 <TextField
