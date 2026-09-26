@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "nodemon --exec babel-node src/index.js",
     "build": "babel src -d dist && cpx \"src/Roboto/**/*\" dist/Roboto",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "db:backup": "node scripts/backup-db.js",
+    "db:restore": "node scripts/restore-db.js"
   },
   "keywords": [],
   "author": "",
