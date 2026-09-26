@@ -11,7 +11,9 @@
     "dev:backend": "npm run dev --workspace iglesia-backend",
     "dev:frontend": "npm run dev --workspace iglesia",
     "build:backend": "npm run build --workspace iglesia-backend",
-    "build:frontend": "npm run build --workspace iglesia"
+    "build:frontend": "npm run build --workspace iglesia",
+    "db:backup": "npm run db:backup --workspace iglesia-backend",
+    "db:restore": "npm run db:restore --workspace iglesia-backend"
   },
   "license": "ISC"
 }

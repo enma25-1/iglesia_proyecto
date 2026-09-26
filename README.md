@@ -139,6 +139,68 @@ npm run <script> --workspace iglesia
 | `lint`           | ESLint sobre `.ts` / `.tsx`              |
 | `preview`        | Previsualiza el build de producción      |
 
+## Backup y restauración de MongoDB
+
+### Cómo hacer un backup
+
+1. Asegúrate de que el contenedor de Mongo esté corriendo:
+   ```bash
+   cd iglesia-backend
+   docker compose up -d mongodb
+   ```
+2. Genera el backup:
+   ```bash
+   npm run db:backup --workspace iglesia-backend
+   ```
+3. Verifica que se creó el archivo en `iglesia-backend/dump/` (nombre tipo `iglesia-<fecha>.archive.gz`).
+4. Guarda ese archivo en un lugar seguro fuera de la PC (USB, disco externo, etc.). No se versiona en git y **no debe enviarse por chat/correo**, ya que contiene datos reales de personas (confirmaciones, usuarios, etc.).
+
+Recomendado: hacer un backup antes de cualquier migración de PC, actualización importante, o de forma periódica como respaldo.
+
+### Cómo restaurar un backup
+
+```bash
+# Restaurar el backup más reciente en dump/
+npm run db:restore --workspace iglesia-backend
+
+# Restaurar un archivo específico
+npm run db:restore --workspace iglesia-backend -- iglesia-2026-01-01T12-00-00-000Z.archive.gz
+```
+
+> `db:restore` usa `--drop`: reemplaza las colecciones de destino que también estén en el backup. Pensado para restaurar sobre una instancia nueva/vacía (ej. al migrar de PC), no para fusionar datos con una base ya en uso.
+
+### Verificar un backup sin arriesgar los datos reales
+
+`db:restore` usa `--drop`, así que antes de restaurar sobre una base con datos reales conviene probar el backup en un Mongo desechable aparte:
+
+```bash
+# Crea un Mongo temporal en otro puerto/contenedor
+docker run -d --name mongodb-test -p 27018:27017 \
+  -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=admin123 mongo:7
+
+# Restaura el backup ahí en vez del contenedor "mongodb" real
+MONGO_CONTAINER=mongodb-test npm run db:restore --workspace iglesia-backend
+
+# Revisa que los datos estén completos y, al terminar, elimina el contenedor de prueba
+docker rm -f mongodb-test
+```
+
+Este flujo (backup → restore en un Mongo desechable) ya se validó: 9 colecciones y 363 documentos restaurados sin fallos, incluyendo los índices únicos (`name_1`, `username_1`, etc.), sin tocar la base de desarrollo real.
+
+## Migrar el sistema a otra PC
+
+1. **Instala requisitos** en la PC destino: Node 20+, npm 7+, Docker y Docker Compose.
+2. **Clona el repo** y corre `npm install` desde la raíz.
+3. **Recrea los `.env`** (no viajan con git):
+   - `iglesia-backend/.env` — ver [Variables de entorno](#variables-de-entorno).
+   - `iglesia-frontend/.env` — copia `iglesia-frontend/.env.template` y ajusta `VITE_API_URL` / `VITE_cloudUlr`.
+   - Transfiere los valores reales (usuario/clave de Mongo, `SECRET_JWT_SEED`, credenciales de Cloudinary) por un canal seguro.
+4. **Levanta MongoDB** en la PC destino: `docker compose up -d mongodb` (desde `iglesia-backend/`).
+5. **Copia el backup** (`npm run db:backup` en la PC de origen) y el backup resultante en `iglesia-backend/dump/` a la PC destino, en la misma ruta.
+6. **Restaura**: `npm run db:restore --workspace iglesia-backend` en la PC destino.
+7. **Copia `iglesia-backend/uploads/`** completa de la PC de origen a la misma ruta en la PC destino (fotos y otros archivos subidos por usuarios; no viaja con git ni con el backup de Mongo).
+8. Levanta el resto (`docker compose up --build` o backend/frontend en local, según la opción elegida) y verifica que los datos y archivos aparecen correctamente.
+
 ## Notas
 
 - No se versionan `.env`, `node_modules/`, `dist/`, logs ni los datos de MongoDB (`data/`, `dump/`, `uploads/`).
