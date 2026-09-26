@@ -158,6 +158,24 @@ npm run db:restore --workspace iglesia-backend -- iglesia-2026-01-01T12-00-00-00
 
 Los archivos de `dump/` no se versionan en git (igual que `data/` y `uploads/`); transfiérelos a mano entre PCs por un medio seguro (USB, etc.), nunca por chat/correo si contienen datos de personas.
 
+### Verificar un backup sin arriesgar los datos reales
+
+`db:restore` usa `--drop`, así que antes de restaurar sobre una base con datos reales conviene probar el backup en un Mongo desechable aparte:
+
+```bash
+# Crea un Mongo temporal en otro puerto/contenedor
+docker run -d --name mongodb-test -p 27018:27017 \
+  -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=admin123 mongo:7
+
+# Restaura el backup ahí en vez del contenedor "mongodb" real
+MONGO_CONTAINER=mongodb-test npm run db:restore --workspace iglesia-backend
+
+# Revisa que los datos estén completos y, al terminar, elimina el contenedor de prueba
+docker rm -f mongodb-test
+```
+
+Este flujo (backup → restore en un Mongo desechable) ya se validó: 9 colecciones y 363 documentos restaurados sin fallos, incluyendo los índices únicos (`name_1`, `username_1`, etc.), sin tocar la base de desarrollo real.
+
 ## Migrar el sistema a otra PC
 
 1. **Instala requisitos** en la PC destino: Node 20+, npm 7+, Docker y Docker Compose.
