@@ -16,12 +16,7 @@ import {
 } from "@mui/material";
 import { Cancel, Save } from "@mui/icons-material";
 import { ModalLayout } from "../../../components";
-import {
-  formatearFecha,
-  handleSocket,
-  required,
-  min,
-} from "../../../../helpers";
+import { formatearFecha, handleSocket } from "../../../../helpers";
 import { handleNavigation, useFieldProps } from "../../../hooks/useFieldProps";
 import { useForm } from "../../../../hooks";
 import { useHttp, useModalConfig } from "../../../hooks";
@@ -52,42 +47,26 @@ export const ModalConfirmacion = () => {
   const editar = useMemo(() => itemActive._id, [itemActive]);
 
   // Configuración de validación
+  // Ningún campo es obligatorio (ni en Confirmaciones normales ni en
+  // Supletorias, comparten este mismo modal): se conservan las claves
+  // para que defaultPropsGenerator/errorValues sigan funcionando, pero
+  // sin validadores no hay forma de bloquear el guardado por campos vacíos.
   const config = useMemo(
     () => ({
-      apellidos: [required],
-      nombres: [required],
-      edad: [required],
-      "parroquiaBustismo.name": [required],
-      "parroquiaConfirmacion.name": [required],
-      "ministro.name": [required],
-      "ministroConfirma.name": [required],
-      padre: [
-        (value: string, allValues: any) =>
-          !value && !allValues.madre
-            ? "Al menos el padre o la madre es requerido"
-            : "",
-      ],
-      madre: [
-        (value: string, allValues: any) =>
-          !value && !allValues.padre
-            ? "Al menos el padre o la madre es requerido"
-            : "",
-      ],
-      padrino: [
-        (value: string, allValues: any) =>
-          !value && !allValues.madrina
-            ? "Al menos el padrino o la madrina es requerido"
-            : "",
-      ],
-      madrina: [
-        (value: string, allValues: any) =>
-          !value && !allValues.padrino
-            ? "Al menos el padrino o la madrina es requerido"
-            : "",
-      ],
-      fecha: [required],
-      libro: [(e: number) => min(e, 1)],
-      folio: [(e: number) => min(e, 1)],
+      apellidos: [],
+      nombres: [],
+      edad: [],
+      "parroquiaBustismo.name": [],
+      "parroquiaConfirmacion.name": [],
+      "ministro.name": [],
+      "ministroConfirma.name": [],
+      padre: [],
+      madre: [],
+      padrino: [],
+      madrina: [],
+      fecha: [],
+      libro: [],
+      folio: [],
       observacion: [],
       // photos: [
       //   (e: string[]) => {

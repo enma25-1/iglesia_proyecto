@@ -5,21 +5,17 @@ export const ConfirmacionSchema = new Schema(
   {
     apellidos: {
       type: String,
-      required: true,
     },
     nombres: {
       type: String,
-      required: true,
     },
     edad: {
       type: String,
-      required: true,
     },
     parroquiaBustismo: {
       _id: {
         type: Schema.Types.ObjectId,
         ref: "Parroquia",
-        required: true,
       },
       direccion: String,
       name: String,
@@ -28,7 +24,6 @@ export const ConfirmacionSchema = new Schema(
       _id: {
         type: Schema.Types.ObjectId,
         ref: "Parroquia",
-        required: true,
       },
       direccion: String,
       name: String,
@@ -37,7 +32,6 @@ export const ConfirmacionSchema = new Schema(
       _id: {
         type: Schema.Types.ObjectId,
         ref: "Ministro",
-        required: true,
       },
       name: String,
       orden: {
@@ -70,15 +64,12 @@ export const ConfirmacionSchema = new Schema(
     },
     fecha: {
       type: Date,
-      required: true,
     },
     libro: {
       type: Number,
-      required: true,
     },
     folio: {
       type: Number,
-      required: true,
     },
     observacion: {
       type: String,

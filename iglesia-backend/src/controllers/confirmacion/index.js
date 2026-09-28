@@ -166,15 +166,6 @@ export const checkDuplicateConfirmacion = async (item) => {
 // CRUD
 export const agregarConfirmacion = async (item) => {
   try {
-    if (!item.padre && !item.madre) {
-      return { error: true, msg: "Debe ingresar al menos el padre o la madre" };
-    }
-    if (!item.padrino && !item.madrina) {
-      return {
-        error: true,
-        msg: "Debe ingresar al menos el padrino o la madrina",
-      };
-    }
     const newConfirmacion = new ConfirmacionModel(item);
 
     await newConfirmacion.save();
@@ -193,12 +184,6 @@ export const agregarConfirmacion = async (item) => {
 };
 export const editarConfirmacion = async (item) => {
   try {
-    if (!item.padre && !item.madre) {
-      return { error: true, msg: "Debe ingresar al menos el padre o la madre" };
-    }
-    if (!item.padrino && !item.madrina) {
-      return { error: true, msg: "Debe ingresar al menos el padrino o la madrina" };
-    }
     const { _id, __v, crud, createdAt, updatedAt, ...updateData } = item;
     const response = await ConfirmacionModel.findOneAndUpdate(
       { _id },
